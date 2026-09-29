@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Photo Filter</title>
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      background: #f2f2f2;
+      margin: 0;
+      padding: 30px 15px;
+    }
+
+    h1 {
+      margin-bottom: 20px;
+    }
+
+    .container {
+      max-width: 600px;
+      margin: auto;
+      background: white;
+      padding: 25px;
+      border-radius: 15px;
+    }
+
+    input {
+      margin: 15px;
+    }
+
+    canvas {
+      max-width: 100%;
+      margin: 20px 0;
+      border-radius: 10px;
+    }
+
+    button {
+      padding: 10px 15px;
+      margin: 5px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      background: #222;
+      color: white;
+    }
+
+    button:hover {
+      opacity: 0.8;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="container">
+
+    <h1>📷 Photo Filter</h1>
+
+    <input type="file" id="upload" accept="image/*">
+
+    <br>
+
+    <canvas id="canvas"></canvas>
+
+    <div>
+      <button onclick="applyFilter('none')">Original</button>
+      <button onclick="applyFilter('grayscale(100%)')">Black & White</button>
+      <button onclick="applyFilter('sepia(80%)')">Vintage</button>
+      <button onclick="applyFilter('brightness(120%)')">Bright</button>
+      <button onclick="applyFilter('contrast(130%)')">Contrast</button>
+      <button onclick="applyFilter('saturate(160%)')">Color</button>
+    </div>
+
+    <br>
+
+    <button onclick="resetFilter()">Reset</button>
+    <button onclick="downloadImage()">⬇️ Download</button>
+
+  </div>
+
+  <script>
+    const upload = document.getElementById("upload");
+    const canvas = document.getElementById("canvas");
+    const ctx = canvas.getContext("2d");
+
+    let image = new Image();
+
+    upload.addEventListener("change", function(event) {
+      const file = event.target.files[0];
+
+      if (!file) return;
+
+      const reader = new FileReader();
+
+      reader.onload = function(e) {
+        image.onload = function() {
+          canvas.width = image.width;
+          canvas.height = image.height;
+          ctx.drawImage(image, 0, 0);
+        };
+
+        image.src = e.target.result;
+      };
+
+      reader.readAsDataURL(file);
+    });
+
+    function applyFilter(filter) {
+      if (!image.src) return;
+
+      ctx.filter = filter;
+      ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
+      ctx.filter = "none";
+    }
+
+    function resetFilter() {
+      if (!image.src) return;
+
+      ctx.filter = "none";
+      ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
+    }
+
+    function downloadImage() {
+      if (!image.src) return;
+
+      const link = document.createElement("a");
+      link.download = "filtered-photo.png";
+      link.href = canvas.toDataURL("image/png");
+      link.click();
+    }
+  </script>
+
+</body>
+</html>
